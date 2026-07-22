@@ -2,7 +2,6 @@ use crate::engine::app::Component;
 use crate::engine::general::inputing::input::Input;
 use crate::engine::general::objects2d::sprite::Sprite;
 use crate::engine::general::time::Time;
-use std::collections::HashMap;
 
 pub struct Scene {
     id: usize,

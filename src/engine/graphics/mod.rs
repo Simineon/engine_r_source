@@ -1,5 +1,7 @@
-pub mod _3d;
 pub mod buffer;
+pub mod mesh;
+pub mod renderer;
+pub mod resource_loader;
 pub mod shader;
 pub mod texture;
 pub mod vertex;

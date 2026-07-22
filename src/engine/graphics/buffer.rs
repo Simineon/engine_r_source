@@ -1,6 +1,5 @@
-use gl::types::{GLenum, GLint, GLsizeiptr, GLuint};
-use gl::{self, CreateShader};
-use std::ffi::{CStr, CString, NulError};
+use gl::types::{GLsizeiptr, GLuint};
+use gl::{self};
 
 pub struct Buffer {
     pub id: GLuint,
