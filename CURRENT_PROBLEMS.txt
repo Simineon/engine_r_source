@@ -1,0 +1,3 @@
+1. Component couldn't support custom functions and just start() and update().
+2. We need in GameObject looks like from unity cuz it's will architecture all objects and let make normal hierarhy.
+3. Some little problems, actually they have close to them comment with TODO.

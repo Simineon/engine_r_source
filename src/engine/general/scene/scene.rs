@@ -1,4 +1,5 @@
 use crate::engine::app::Component;
+use crate::engine::general::camera::Camera;
 use crate::engine::general::inputing::input::Input;
 use crate::engine::general::objects2d::sprite::Sprite;
 use crate::engine::general::time::Time;
@@ -8,6 +9,7 @@ pub struct Scene {
     name: String,
     pub sprites: Vec<Sprite>,
     components: Vec<Box<dyn Component>>,
+    pub cameras: Vec<Camera>,
 }
 
 impl Scene {
@@ -17,6 +19,15 @@ impl Scene {
             name,
             sprites: Vec::new(),
             components: Vec::new(),
+            cameras: Vec::new(),
+        }
+    }
+
+    pub fn update_camera_to_follow_sprite(&mut self, sprite_index: usize, camera_index: usize) {
+        if let Some(sprite) = self.sprites.get(sprite_index) {
+            if let Some(camera) = self.cameras.get_mut(camera_index) {
+                camera.update_position(sprite.x, sprite.y, sprite.z);
+            }
         }
     }
 
@@ -29,6 +40,10 @@ impl Scene {
         self.components.push(component);
     }
 
+    pub fn add_camera(&mut self, camera: Camera) {
+        self.cameras.push(camera);
+    }
+
     pub fn start(&mut self) {
         for comp in self.components.iter_mut() {
             comp.start();
@@ -36,8 +51,11 @@ impl Scene {
     }
 
     pub fn update(&mut self, input: &Input, time: &Time) {
-        for comp in self.components.iter_mut() {
-            comp.update(input, time, &mut self.sprites);
+        let sprites = &mut self.sprites;
+        let cameras = &mut self.cameras;
+
+        for component in &mut self.components {
+            component.update(input, time, sprites, cameras);
         }
     }
 

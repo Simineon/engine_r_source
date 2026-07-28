@@ -1,4 +1,4 @@
-pub type Pos = [f32; 2];
+pub type Pos = [f32; 3];
 pub type TextureCoords = [f32; 2];
 
 #[repr(C)]

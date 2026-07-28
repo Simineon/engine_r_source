@@ -41,14 +41,14 @@ impl Renderer {
         mesh: &mut Mesh,
         textures: &[Texture],
         texture_registry: &HashMap<String, u32>,
+        projection: &nalgebra_glm::Mat4,
+        view: &nalgebra_glm::Mat4,
     ) {
         unsafe {
             gl::ClearColor(0.2, 0.3, 0.3, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);
 
-            self.program.apply();
-
-            // get vertices
+            // Get vertices
             let mut dynamic_vertices: Vec<Vertex> = Vec::new();
             let mut dynamic_indices: Vec<u32> = Vec::new();
             let mut used_textures = std::collections::HashSet::new();
@@ -65,18 +65,21 @@ impl Renderer {
                 }
             }
 
-            // update
             mesh.update_vertices(&dynamic_vertices);
             mesh.update_indices(&dynamic_indices);
 
-            // Activating textures
+            // Activate textures
             for &texture_index in used_textures.iter() {
                 if texture_index < textures.len() as u32 {
                     textures[texture_index as usize].activate(texture_index as u32);
                 }
             }
 
-            mesh.draw();
+            // create matrix model ofr 2d
+            // TODO: do 3d support for camera
+            let model = nalgebra_glm::identity();
+
+            mesh.draw_with_matrices(projection, view, &model);
         }
     }
 

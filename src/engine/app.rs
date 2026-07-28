@@ -6,24 +6,29 @@
 //! You may see componets - this is my implementation of scripts system from popular game engines(unity for example: MonoBehaviur Script)
 //! For FS!
 //! Heil Linus!
+use crate::engine::general::camera::Camera;
 use crate::engine::general::inputing::input::Input;
 use crate::engine::general::inputing::keys::Key;
 use crate::engine::general::objects2d::sprite::Sprite;
 use crate::engine::general::scene::scene_adapter::SceneAdapter;
 use crate::engine::general::time::Time;
 use crate::engine::general::window::Window;
-use crate::engine::graphics::buffer::Buffer;
 use crate::engine::graphics::mesh::mesh::Mesh;
 use crate::engine::graphics::renderer::Renderer;
 use crate::engine::graphics::texture::{Texture, load_all_textures_from_assets};
 use crate::engine::graphics::vertex::*;
-use crate::engine::graphics::vertex_array::VertexArray;
 use glutin::event::{Event, WindowEvent};
 use glutin::event_loop::{ControlFlow, EventLoop};
 
 pub trait Component {
     fn start(&mut self);
-    fn update(&mut self, input: &Input, time: &Time, sprites: &mut Vec<Sprite>);
+    fn update(
+        &mut self,
+        input: &Input,
+        time: &Time,
+        sprites: &mut Vec<Sprite>,
+        cameras: &mut Vec<Camera>,
+    ); // TODO: убрать все эти параметры нахуй потому что я пишу движок который должен посоперничать популярными а значит не должен быть ультра сложным
 }
 
 pub struct GameApp {
@@ -64,10 +69,10 @@ impl GameApp {
         let program = renderer.get_shader_program();
 
         let vertices: Vec<Vertex> = vec![
-            Vertex([-0.5, -0.5], [0.0, 0.0], 0.0),
-            Vertex([0.5, -0.5], [1.0, 0.0], 0.0),
-            Vertex([0.5, 0.5], [1.0, 1.0], 0.0),
-            Vertex([-0.5, 0.5], [0.0, 1.0], 0.0),
+            Vertex([-0.5, -0.5, 0.0], [0.0, 0.0], 0.0),
+            Vertex([0.5, -0.5, 0.0], [1.0, 0.0], 0.0),
+            Vertex([0.5, 0.5, 0.0], [1.0, 1.0], 0.0),
+            Vertex([-0.5, 0.5, 0.0], [0.0, 1.0], 0.0),
         ];
 
         let indices: Vec<u32> = vec![0, 1, 2, 0, 2, 3];
@@ -137,7 +142,33 @@ impl GameApp {
                 }
                 Event::RedrawRequested(_) => {
                     if let Some(scene) = self.scene_adaptor.get_current_scene() {
-                        renderer.draw(scene, &mut mesh, &textures, &texture_registry);
+                        // use default camera(or first)
+                        let camera = if !scene.cameras.is_empty() {
+                            &scene.cameras[0]
+                        } else {
+                            &Camera::new((0.0, 0.0, 3.0), -90.0, 0.0, 2.5, 0.1, 0.7)
+                        };
+
+                        // 3D perspective projection
+                        let fov = 45.0f32.to_radians(); // Field of view
+                        let aspect_ratio = gl_context.window().inner_size().width as f32
+                            / gl_context.window().inner_size().height as f32;
+                        let near_plane = 0.1;
+                        let far_plane = 100.0;
+
+                        let projection =
+                            nalgebra_glm::perspective(aspect_ratio, fov, near_plane, far_plane);
+
+                        let view = camera.get_view_matrix();
+
+                        renderer.draw(
+                            scene,
+                            &mut mesh,
+                            &textures,
+                            &texture_registry,
+                            &projection,
+                            &view,
+                        );
                     }
                     gl_context.swap_buffers().unwrap();
                 }

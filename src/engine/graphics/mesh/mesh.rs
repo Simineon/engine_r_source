@@ -3,12 +3,14 @@ use crate::engine::graphics::{
     buffer::Buffer, vertex::Pos, vertex::TextureCoords, vertex::Vertex, vertex_array::VertexArray,
 };
 use gl;
+use std::ffi::CString;
 
 pub struct Mesh {
     vao: VertexArray,
     vbo: Buffer,
     ebo: Buffer,
     vertex_count: i64,
+    program_id: u32,
 }
 
 impl Mesh {
@@ -25,7 +27,6 @@ impl Mesh {
             ebo.bind();
             ebo.set_data(indices, gl::DYNAMIC_DRAW);
 
-            // using transfered shader program
             let pos_attrib = program.get_attrib_location("position").unwrap_or(0);
             let tex_attrib = program.get_attrib_location("texCoord").unwrap_or(1);
             let index_attrib = program.get_attrib_location("aTexIndex").unwrap_or(2);
@@ -46,6 +47,7 @@ impl Mesh {
             vbo,
             ebo,
             vertex_count: vertices.len() as i64,
+            program_id: program.id,
         }
     }
 
@@ -64,10 +66,49 @@ impl Mesh {
         self.vertex_count = indices.len() as i64;
     }
 
+    pub fn draw_with_matrices(
+        &self,
+        projection: &nalgebra_glm::Mat4,
+        view: &nalgebra_glm::Mat4,
+        model: &nalgebra_glm::Mat4,
+    ) {
+        unsafe {
+            gl::UseProgram(self.program_id);
+
+            let projection_loc = gl::GetUniformLocation(
+                self.program_id,
+                CString::new("projection").unwrap().as_ptr(),
+            );
+            let view_loc =
+                gl::GetUniformLocation(self.program_id, CString::new("view").unwrap().as_ptr());
+            let model_loc =
+                gl::GetUniformLocation(self.program_id, CString::new("model").unwrap().as_ptr());
+
+            if projection_loc != -1 {
+                gl::UniformMatrix4fv(projection_loc, 1, gl::FALSE, projection.as_ptr());
+            }
+
+            if view_loc != -1 {
+                gl::UniformMatrix4fv(view_loc, 1, gl::FALSE, view.as_ptr());
+            }
+
+            if model_loc != -1 {
+                gl::UniformMatrix4fv(model_loc, 1, gl::FALSE, model.as_ptr());
+            }
+
+            self.vao.bind();
+            gl::DrawElements(
+                gl::TRIANGLES,
+                self.vertex_count as i32,
+                gl::UNSIGNED_INT,
+                std::ptr::null(),
+            );
+        }
+    }
+
     pub fn draw(&self) {
         unsafe {
             self.vao.bind();
-            // Drawing
             gl::DrawElements(
                 gl::TRIANGLES,
                 self.vertex_count as i32,
