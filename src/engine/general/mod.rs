@@ -1,4 +1,5 @@
 pub mod camera;
+pub mod entity;
 pub mod inputing;
 pub mod objects2d;
 pub mod scene;

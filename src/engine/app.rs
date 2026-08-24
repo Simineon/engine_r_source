@@ -7,6 +7,7 @@
 //! For FS!
 //! Heil Linus!
 use crate::engine::general::camera::Camera;
+use crate::engine::general::entity::entity_hierarchy::EntityHierarchy;
 use crate::engine::general::inputing::input::Input;
 use crate::engine::general::inputing::keys::Key;
 use crate::engine::general::objects2d::sprite::Sprite;
@@ -36,6 +37,7 @@ pub struct GameApp {
     time: Time,
     input: Input,
     pub scene_adaptor: SceneAdapter,
+    pub hierarchy: EntityHierarchy,
 }
 
 impl GameApp {
@@ -45,6 +47,7 @@ impl GameApp {
             time: Time::new(),
             input: Input::new(),
             scene_adaptor: SceneAdapter::new(),
+            hierarchy: EntityHierarchy::new(),
         }
     }
 
@@ -129,11 +132,12 @@ impl GameApp {
                 },
                 Event::MainEventsCleared => {
                     self.time.update_delta_time();
-                    let dt = self.time.get_delta_time();
+                    //let dt = self.time.get_delta_time();
 
                     self.input.update();
+                    //println!("{}", &self.hierarchy.get_game_objects_str());
 
-                    println!("FPS: {:.2}", 1.0 / dt);
+                    //println!("FPS: {:.2}", 1.0 / dt);
 
                     if let Some(scene) = self.scene_adaptor.get_current_scene_mut() {
                         scene.update(&self.input, &self.time);

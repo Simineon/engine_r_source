@@ -8,6 +8,7 @@
 
 mod engine;
 use crate::engine::general::camera::Camera;
+use crate::engine::general::entity::entity::GAME_OBJECTS;
 use crate::engine::general::inputing::keys::Key;
 use crate::engine::general::objects2d::sprite::Sprite;
 use engine::app::Component;
@@ -55,7 +56,6 @@ impl Component for PlayerController {
         let mut dy = 0.0;
         let mut dz = 0.0;
 
-        // Управление спрайтом (игроком)
         if input.is_key_pressed(Key::Space) {
             dy += self.speed * delta_time;
         }
@@ -118,37 +118,24 @@ fn main() {
     let mut app = GameApp::new("Engine");
     let mut level_1 = Scene::new(1, "Level 1".to_string());
 
-    let camera = Camera::new(
-        (0.0, 0.0, 5.0),
-        -45.0, // Yaw
-        -15.0, // Pitch
-        2.5,   // Speed
-        0.1,   // Sensitivity
-        45.0,  // Zoom/FOV
-    );
+    let camera = Camera::new((0.0, 0.0, 5.0), -45.0, -15.0, 2.5, 0.1, 45.0);
 
     level_1.add_camera(camera);
 
-    let player_sprite = Sprite {
-        x: 0.0,
-        y: 0.0,
-        z: 0.0,
-        width: 1.0,
-        height: 1.0,
-        texture_name: "rs".to_string(),
-    };
+    let player_sprite = Sprite::new_game_object(0.0, 0.0, 0.0, 1.0, 1.0, "rs");
 
-    let test_sprite = Sprite {
-        x: 2.0,
-        y: 0.0,
-        z: 0.0,
-        width: 1.0,
-        height: 1.0,
-        texture_name: "linus".to_string(),
-    };
+    let test_sprite = sprite_game_object!(2.0, 0.0, 0.0, 1.0, 1.0, "linus");
 
-    let p_idx = level_1.add_sprite(player_sprite);
-    level_1.add_sprite(test_sprite);
+    let mut another_sprite = Sprite::new(3.0, 0.0, 0.0, 1.0, 1.0, "default");
+    another_sprite.register_as_game_object();
+
+    let p_idx = level_1.add_sprite(player_sprite.clone());
+    level_1.add_sprite(test_sprite.clone());
+    level_1.add_sprite(another_sprite.clone());
+
+    app.hierarchy.add_game_object(player_sprite.entity);
+    app.hierarchy.add_game_object(test_sprite.entity);
+    app.hierarchy.add_game_object(another_sprite.entity);
 
     let controller = Box::new(PlayerController::new(p_idx, 0));
     level_1.add_component(controller);

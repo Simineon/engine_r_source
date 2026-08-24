@@ -1,3 +1,4 @@
+use crate::engine::general::entity::entity::{Entity, get_all_game_objects, register_game_object};
 use crate::engine::graphics::vertex::Vertex;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
@@ -7,7 +8,7 @@ lazy_static! {
     pub static ref sprite_group: Mutex<Vec<Sprite>> = Mutex::new(Vec::new());
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Sprite {
     pub x: f32,
     pub y: f32,
@@ -15,18 +16,46 @@ pub struct Sprite {
     pub width: f32,
     pub height: f32,
     pub texture_name: String,
+    pub entity: Entity,
+    pub is_game_object: bool,
 }
 
 impl Sprite {
-    pub fn new(x: f32, y: f32, z: f32, width: f32, height: f32, texture_name: &str) {
-        sprite_group.lock().unwrap().push(Self {
+    pub fn new(x: f32, y: f32, z: f32, width: f32, height: f32, texture_name: &str) -> Self {
+        Self {
             x,
             y,
             z,
             width,
             height,
             texture_name: texture_name.to_string(),
-        });
+            entity: Entity::new(),
+            is_game_object: false,
+        }
+    }
+
+    pub fn new_game_object(
+        x: f32,
+        y: f32,
+        z: f32,
+        width: f32,
+        height: f32,
+        texture_name: &str,
+    ) -> Self {
+        let mut sprite = Self::new(x, y, z, width, height, texture_name);
+        sprite.register_as_game_object();
+        sprite
+    }
+
+    pub fn register_as_game_object(&mut self) {
+        if !self.is_game_object {
+            register_game_object(self.entity);
+            self.is_game_object = true;
+            println!(
+                "Sprite registered as game object: Entity #{}",
+                self.entity.0
+            );
+        }
     }
 
     pub fn append_vertices(
@@ -64,4 +93,28 @@ impl Sprite {
         self.x = new_x;
         self.y = new_y;
     }
+}
+
+impl Clone for Sprite {
+    fn clone(&self) -> Self {
+        Self {
+            x: self.x,
+            y: self.y,
+            z: self.z,
+            width: self.width,
+            height: self.height,
+            texture_name: self.texture_name.clone(),
+            entity: self.entity,
+            is_game_object: false,
+        }
+    }
+}
+
+#[macro_export]
+macro_rules! sprite_game_object {
+    ($x:expr, $y:expr, $z:expr, $width:expr, $height:expr, $texture:expr) => {{
+        let mut sprite = Sprite::new($x, $y, $z, $width, $height, $texture);
+        sprite.register_as_game_object();
+        sprite
+    }};
 }
