@@ -34,30 +34,6 @@ impl Sprite {
         }
     }
 
-    pub fn new_game_object(
-        x: f32,
-        y: f32,
-        z: f32,
-        width: f32,
-        height: f32,
-        texture_name: &str,
-    ) -> Self {
-        let mut sprite = Self::new(x, y, z, width, height, texture_name);
-        sprite.register_as_game_object();
-        sprite
-    }
-
-    pub fn register_as_game_object(&mut self) {
-        if !self.is_game_object {
-            register_game_object(self.entity);
-            self.is_game_object = true;
-            println!(
-                "Sprite registered as game object: Entity #{}",
-                self.entity.0
-            );
-        }
-    }
-
     pub fn append_vertices(
         &self,
         vertices: &mut Vec<Vertex>,

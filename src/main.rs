@@ -5,10 +5,8 @@
 //! - The Main file which containts Scenes, Scripts Structure headers,
 //! - The Main file launch all application,
 //! - Containts imports.
-
 mod engine;
 use crate::engine::general::camera::Camera;
-use crate::engine::general::entity::entity::GAME_OBJECTS;
 use crate::engine::general::inputing::keys::Key;
 use crate::engine::general::objects2d::sprite::Sprite;
 use engine::app::Component;
@@ -122,20 +120,19 @@ fn main() {
 
     level_1.add_camera(camera);
 
-    let player_sprite = Sprite::new_game_object(0.0, 0.0, 0.0, 1.0, 1.0, "rs");
+    let player_sprite = Sprite::new(0.0, 0.0, 0.0, 1.0, 1.0, "rs");
 
-    let test_sprite = sprite_game_object!(2.0, 0.0, 0.0, 1.0, 1.0, "linus");
+    let test_sprite = Sprite::new(2.0, 0.0, 0.0, 1.0, 1.0, "linus");
 
-    let mut another_sprite = Sprite::new(3.0, 0.0, 0.0, 1.0, 1.0, "default");
-    another_sprite.register_as_game_object();
+    let another_sprite = Sprite::new(3.0, 0.0, 0.0, 1.0, 1.0, "default");
 
     let p_idx = level_1.add_sprite(player_sprite.clone());
     level_1.add_sprite(test_sprite.clone());
     level_1.add_sprite(another_sprite.clone());
 
-    app.hierarchy.add_game_object(player_sprite.entity);
-    app.hierarchy.add_game_object(test_sprite.entity);
-    app.hierarchy.add_game_object(another_sprite.entity);
+    app.hierarchy.add_entity(player_sprite.entity);
+    app.hierarchy.add_entity(test_sprite.entity);
+    app.hierarchy.add_entity(another_sprite.entity);
 
     let controller = Box::new(PlayerController::new(p_idx, 0));
     level_1.add_component(controller);

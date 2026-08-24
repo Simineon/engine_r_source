@@ -135,7 +135,7 @@ impl GameApp {
                     //let dt = self.time.get_delta_time();
 
                     self.input.update();
-                    //println!("{}", &self.hierarchy.get_game_objects_str());
+                    println!("{}", &self.hierarchy.get_game_objects_str());
 
                     //println!("FPS: {:.2}", 1.0 / dt);
 
