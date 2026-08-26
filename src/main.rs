@@ -121,9 +121,7 @@ fn main() {
     level_1.add_camera(camera);
 
     let player_sprite = Sprite::new(0.0, 0.0, 0.0, 1.0, 1.0, "rs");
-
     let test_sprite = Sprite::new(2.0, 0.0, 0.0, 1.0, 1.0, "linus");
-
     let another_sprite = Sprite::new(3.0, 0.0, 0.0, 1.0, 1.0, "default");
 
     let p_idx = level_1.add_sprite(player_sprite.clone());

@@ -3,6 +3,7 @@ use crate::engine::general::entity::entity::{Entity, get_all_game_objects, regis
 pub struct EntityHierarchy {
     pub is_parent: Option<bool>,
     pub is_children: Option<bool>,
+    pub is_default: Option<bool>, // "default" means is not parent and is not children
     pub entities: Vec<Entity>,
 }
 
@@ -11,6 +12,7 @@ impl EntityHierarchy {
         Self {
             is_parent: None,
             is_children: None,
+            is_default: Some(true),
             entities: Vec::new(),
         }
     }
@@ -35,6 +37,8 @@ impl EntityHierarchy {
             .collect::<Vec<String>>()
             .join(", ")
     }
+
+    //pub fn get_hierarchy_view(&self) -> String {}
 
     pub fn refresh_game_objects(&mut self) {
         self.entities = get_all_game_objects();

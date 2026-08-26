@@ -85,12 +85,3 @@ impl Clone for Sprite {
         }
     }
 }
-
-#[macro_export]
-macro_rules! sprite_game_object {
-    ($x:expr, $y:expr, $z:expr, $width:expr, $height:expr, $texture:expr) => {{
-        let mut sprite = Sprite::new($x, $y, $z, $width, $height, $texture);
-        sprite.register_as_game_object();
-        sprite
-    }};
-}
