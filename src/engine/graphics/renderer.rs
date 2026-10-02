@@ -1,6 +1,7 @@
 //! Renderer file
 //!
 //! This file setting shader program
+use crate::engine::general::objects2d::sprite::{SPRITE_REGISTRY, sprite_group};
 use crate::engine::general::scene::scene::Scene;
 use crate::engine::graphics::mesh::mesh::Mesh;
 use crate::engine::graphics::shader::{Shader, ShaderProgram};
@@ -53,15 +54,22 @@ impl Renderer {
             let mut dynamic_indices: Vec<u32> = Vec::new();
             let mut used_textures = std::collections::HashSet::new();
 
-            for sprite in scene.sprites.iter() {
-                sprite.append_vertices(
-                    &mut dynamic_vertices,
-                    &mut dynamic_indices,
-                    texture_registry,
-                );
+            let all_sprites = sprite_group.lock().unwrap();
 
-                if let Some(&index) = texture_registry.get(&sprite.texture_name) {
-                    used_textures.insert(index);
+            for &entity in scene.entities.iter() {
+                let registry = SPRITE_REGISTRY.lock().unwrap();
+                if let Some(&sprite_index) = registry.get(&entity) {
+                    if let Some(sprite) = all_sprites.get(sprite_index) {
+                        sprite.append_vertices(
+                            &mut dynamic_vertices,
+                            &mut dynamic_indices,
+                            texture_registry,
+                        );
+
+                        if let Some(&index) = texture_registry.get(&sprite.texture_name) {
+                            used_textures.insert(index);
+                        }
+                    }
                 }
             }
 
@@ -76,7 +84,6 @@ impl Renderer {
             }
 
             // create matrix model ofr 2d
-            // TODO: do 3d support for camera
             let model = nalgebra_glm::identity();
 
             mesh.draw_with_matrices(projection, view, &model);

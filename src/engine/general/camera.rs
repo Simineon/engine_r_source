@@ -1,3 +1,10 @@
+// Camera must not have scale
+
+use crate::engine::general::{
+    coordination::{Coords, Location},
+    entity::entity::{Entity, register_game_object},
+};
+
 pub enum Directions {
     Left,
     Right,
@@ -7,9 +14,10 @@ pub enum Directions {
     Backward,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Camera {
     position: nalgebra_glm::Vec3,
+    location: Location,
 
     // camera positioning parameters
     front: nalgebra_glm::Vec3,
@@ -22,6 +30,8 @@ pub struct Camera {
     speed: f32,
     sensitivity: f32,
     zoom: f32,
+
+    entity: Entity,
 }
 
 impl Camera {
@@ -33,22 +43,35 @@ impl Camera {
         sensitivity: f32,
         zoom: f32,
     ) -> Self {
-        let vec3_position: nalgebra_glm::Vec3 =
-            nalgebra_glm::vec3(position.0, position.1, position.2);
+        let vec3_position = nalgebra_glm::vec3(position.0, position.1, position.2);
 
         let world_up = nalgebra_glm::vec3(0.0, 1.0, 0.0);
         let front = Camera::calc_front(yaw, pitch);
         let right = Camera::calc_right(&front, &world_up);
         let up = Camera::calc_up(&right, &front);
 
-        Self {
-            position: vec3_position,
+        let entity = Entity::new();
+        register_game_object(entity);
 
+        let location = Location {
+            position: Coords {
+                x: position.0,
+                y: position.1,
+                z: position.2,
+            },
+            local_position: None,
+            rotation: [0.0, 0.0, 0.0, 1.0],
+            scale: [1.0, 1.0, 1.0],
+        };
+
+        Self {
+            entity,
+            position: vec3_position,
+            location,
             front,
             right,
             up,
             world_up,
-
             yaw,
             pitch,
             speed,

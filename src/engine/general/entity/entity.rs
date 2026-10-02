@@ -51,11 +51,10 @@ pub fn is_game_object(entity: Entity) -> bool {
     objects.contains(&entity)
 }
 
-#[derive(Debug, Clone)]
-pub struct Location {
-    pub position: [f32; 3],
-    pub rotation: [f32; 4],
-    pub scale: [f32; 3],
+// This macro setting another coords from object which we are turn into GameObject(Entity)
+#[macro_export]
+macro_rules! set_coodinating_for_location {
+    () => {};
 }
 
 #[macro_export]

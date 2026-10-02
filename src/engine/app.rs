@@ -7,10 +7,12 @@
 //! For FS!
 //! Heil Linus!
 use crate::engine::general::camera::Camera;
+use crate::engine::general::entity::entity::{get_all_entity_ids, get_all_game_objects};
 use crate::engine::general::entity::entity_hierarchy::EntityHierarchy;
 use crate::engine::general::inputing::input::Input;
 use crate::engine::general::inputing::keys::Key;
 use crate::engine::general::objects2d::sprite::Sprite;
+use crate::engine::general::objects2d::sprite::{SPRITE_REGISTRY, sprite_group};
 use crate::engine::general::scene::scene_adapter::SceneAdapter;
 use crate::engine::general::time::Time;
 use crate::engine::general::window::Window;
@@ -95,12 +97,18 @@ impl GameApp {
         let mut dynamic_indices: Vec<u32> = Vec::new();
 
         if let Some(scene) = self.scene_adaptor.get_current_scene() {
-            for sprite in scene.sprites.iter() {
-                sprite.append_vertices(
-                    &mut dynamic_vertices,
-                    &mut dynamic_indices,
-                    &texture_registry,
-                );
+            let all_sprites = sprite_group.lock().unwrap();
+            for &entity in scene.entities.iter() {
+                let registry = SPRITE_REGISTRY.lock().unwrap();
+                if let Some(&sprite_index) = registry.get(&entity) {
+                    if let Some(sprite) = all_sprites.get(sprite_index) {
+                        sprite.append_vertices(
+                            &mut dynamic_vertices,
+                            &mut dynamic_indices,
+                            &texture_registry,
+                        );
+                    }
+                }
             }
         }
 
@@ -135,7 +143,7 @@ impl GameApp {
                     //let dt = self.time.get_delta_time();
 
                     self.input.update();
-                    println!("{}", &self.hierarchy.get_game_objects_str());
+                    //println!("{}", &self.hierarchy.get_game_objects_str());
 
                     //println!("FPS: {:.2}", 1.0 / dt);
 

@@ -17,7 +17,7 @@ impl EntityHierarchy {
         }
     }
 
-    pub fn add_entity(&mut self, entity: Entity) {
+    pub fn add_entity_for_hierarchy(&mut self, entity: Entity) {
         register_game_object(entity);
         self.entities.push(entity);
     }

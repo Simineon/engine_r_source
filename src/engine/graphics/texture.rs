@@ -24,6 +24,11 @@ impl Texture {
         texture.set_wrap(gl::CLAMP_TO_EDGE as GLint, gl::CLAMP_TO_EDGE as GLint);
         texture.set_filter(gl::LINEAR as GLint, gl::LINEAR as GLint);
 
+        texture.bind();
+        unsafe {
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAX_LEVEL, 0);
+        }
+
         texture
     }
 

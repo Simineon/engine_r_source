@@ -7,6 +7,7 @@
 //! - Containts imports.
 mod engine;
 use crate::engine::general::camera::Camera;
+use crate::engine::general::entity::entity::Entity;
 use crate::engine::general::inputing::keys::Key;
 use crate::engine::general::objects2d::sprite::Sprite;
 use engine::app::Component;
@@ -17,15 +18,15 @@ use engine::general::time::Time;
 
 pub struct PlayerController {
     speed: f32,
-    player_sprite_index: usize,
+    player_entity: Entity,
     camera_index: usize,
 }
 
 impl PlayerController {
-    pub fn new(player_sprite_index: usize, camera_index: usize) -> Self {
+    pub fn new(player_entity: Entity, camera_index: usize) -> Self {
         Self {
             speed: 3.0,
-            player_sprite_index,
+            player_entity,
             camera_index,
         }
     }
@@ -45,7 +46,7 @@ impl Component for PlayerController {
     ) {
         let delta_time = time.get_delta_time() as f32;
 
-        let sprite = match sprites.get_mut(self.player_sprite_index) {
+        let sprite = match sprites.iter_mut().find(|s| s.entity == self.player_entity) {
             Some(s) => s,
             None => return,
         };
@@ -74,9 +75,9 @@ impl Component for PlayerController {
         }
 
         if dx != 0.0 || dy != 0.0 || dz != 0.0 {
-            sprite.x += dx;
-            sprite.y += dy;
-            sprite.z += dz;
+            sprite.location.position.x += dx;
+            sprite.location.position.y += dy;
+            sprite.location.position.z += dz;
         }
 
         let mut cam_dx = 0.0;
@@ -117,22 +118,21 @@ fn main() {
     let mut level_1 = Scene::new(1, "Level 1".to_string());
 
     let camera = Camera::new((0.0, 0.0, 5.0), -45.0, -15.0, 2.5, 0.1, 45.0);
-
     level_1.add_camera(camera);
 
     let player_sprite = Sprite::new(0.0, 0.0, 0.0, 1.0, 1.0, "rs");
     let test_sprite = Sprite::new(2.0, 0.0, 0.0, 1.0, 1.0, "linus");
     let another_sprite = Sprite::new(3.0, 0.0, 0.0, 1.0, 1.0, "default");
 
-    let p_idx = level_1.add_sprite(player_sprite.clone());
-    level_1.add_sprite(test_sprite.clone());
-    level_1.add_sprite(another_sprite.clone());
+    let player_entity = level_1.add_sprite(player_sprite);
+    let test_entity = level_1.add_sprite(test_sprite);
+    let another_entity = level_1.add_sprite(another_sprite);
 
-    app.hierarchy.add_entity(player_sprite.entity);
-    app.hierarchy.add_entity(test_sprite.entity);
-    app.hierarchy.add_entity(another_sprite.entity);
+    app.hierarchy.add_entity_for_hierarchy(player_entity);
+    app.hierarchy.add_entity_for_hierarchy(test_entity);
+    app.hierarchy.add_entity_for_hierarchy(another_entity);
 
-    let controller = Box::new(PlayerController::new(p_idx, 0));
+    let controller = Box::new(PlayerController::new(player_entity, 0));
     level_1.add_component(controller);
 
     app.scene_adaptor.add_scene(level_1);
